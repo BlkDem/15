@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#0b0908" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="Пятнашки — реалистичная 3D-головоломка: гравированные костяшки, живой свет и настоящий стук." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Пятнашки" />
+    <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <title>Пятнашки</title>
+  </head>
+  <body>
+    <canvas id="scene" aria-label="Игровое поле"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <header class="hud" id="hud">
+      <div class="brand">
+        <span class="brand-mark">15</span>
+        <span class="brand-name">Пятнашки</span>
+      </div>
+      <div class="stats" role="status" aria-live="off">
+        <div class="stat">
+          <span class="stat-label">Ходы</span>
+          <span class="stat-value" id="moves">0</span>
+        </div>
+        <div class="stat-sep"></div>
+        <div class="stat">
+          <span class="stat-label">Время</span>
+          <span class="stat-value" id="time">0:00</span>
+        </div>
+      </div>
+      <div class="hud-actions">
+        <button class="icon-btn" id="btn-sound" aria-label="Звук" title="Звук">
+          <svg class="ico-on" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" /><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /></svg>
+          <svg class="ico-off" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" /><path d="m16 9.5 5 5m0-5-5 5" /></svg>
+        </button>
+        <button class="icon-btn" id="btn-menu" aria-label="Настройки" title="Настройки">
+          <svg viewBox="0 0 24 24"><path d="M4 7h9m4 0h3M4 17h3m4 0h9" /><circle cx="15" cy="7" r="2.2" /><circle cx="9" cy="17" r="2.2" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <footer class="dock" id="dock">
+      <div class="seg" id="size-seg" role="radiogroup" aria-label="Размер поля">
+        <button role="radio" data-size="3">3×3</button>
+        <button role="radio" data-size="4">4×4</button>
+        <button role="radio" data-size="5">5×5</button>
+        <span class="seg-thumb" aria-hidden="true"></span>
+      </div>
+      <button class="primary" id="btn-new">
+        <svg viewBox="0 0 24 24"><path d="M3 7h3.5c2.2 0 3.6 1 4.8 2.9l2.4 4.2c1.2 1.9 2.6 2.9 4.8 2.9H21m0 0-2.6-2.6M21 17l-2.6 2.6M3 17h3.5c1.3 0 2.3-.4 3.1-1.1M21 7h-2.5c-1.3 0-2.3.4-3.1 1.1M21 7l-2.6-2.6M21 7l-2.6 2.6" /></svg>
+        <span>Перемешать</span>
+      </button>
+    </footer>
+
+    <!-- настройки -->
+    <div class="modal" id="sheet" hidden>
+      <div class="modal-backdrop" data-close></div>
+      <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+        <div class="sheet-grip" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="sheet-title">Настройки</h2>
+          <button class="icon-btn small" data-close aria-label="Закрыть">
+            <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </div>
+
+        <h3>Набор</h3>
+        <div class="themes" id="themes"></div>
+
+        <h3>Поле</h3>
+        <div class="seg wide" id="size-seg-2" role="radiogroup" aria-label="Размер поля">
+          <button role="radio" data-size="3">3×3</button>
+          <button role="radio" data-size="4">4×4</button>
+          <button role="radio" data-size="5">5×5</button>
+          <span class="seg-thumb" aria-hidden="true"></span>
+        </div>
+
+        <h3>Ощущения</h3>
+        <div class="toggles">
+          <label class="toggle"><span>Звук</span><input type="checkbox" id="opt-sound" /><i></i></label>
+          <label class="toggle" id="row-haptics"><span>Вибрация</span><input type="checkbox" id="opt-haptics" /><i></i></label>
+          <label class="toggle"><span>Параллакс <small>мышь / наклон телефона</small></span><input type="checkbox" id="opt-parallax" /><i></i></label>
+        </div>
+
+        <h3>Рекорды</h3>
+        <div class="records" id="records"></div>
+
+        <button class="secondary" id="btn-install" hidden>
+          <svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14" /></svg>
+          Установить на устройство
+        </button>
+
+        <p class="credits">Костяшки и рамки смоделированы в Blender, материалы — процедурный PBR, звук синтезируется на лету. Управление: тап, перетаскивание, свайп, стрелки/WASD, <kbd>N</kbd> — новая партия.</p>
+      </section>
+    </div>
+
+    <!-- победа -->
+    <div class="modal win" id="win" hidden>
+      <div class="modal-backdrop"></div>
+      <section class="win-card" role="dialog" aria-modal="true" aria-labelledby="win-title">
+        <div class="win-kicker" id="win-kicker">Головоломка 4×4</div>
+        <h2 id="win-title">Собрано!</h2>
+        <div class="win-stats">
+          <div><span class="win-num" id="win-time">0:00</span><span class="win-label">время</span></div>
+          <div><span class="win-num" id="win-moves">0</span><span class="win-label">ходов</span></div>
+        </div>
+        <div class="win-record" id="win-record" hidden></div>
+        <div class="win-best" id="win-best"></div>
+        <button class="primary" id="btn-again">
+          <svg viewBox="0 0 24 24"><path d="M3 7h3.5c2.2 0 3.6 1 4.8 2.9l2.4 4.2c1.2 1.9 2.6 2.9 4.8 2.9H21m0 0-2.6-2.6M21 17l-2.6 2.6M3 17h3.5c1.3 0 2.3-.4 3.1-1.1M21 7h-2.5c-1.3 0-2.3.4-3.1 1.1M21 7l-2.6-2.6M21 7l-2.6 2.6" /></svg>
+          <span>Ещё раз</span>
+        </button>
+      </section>
+    </div>
+
+    <div class="loader" id="loader">
+      <div class="loader-mark">15</div>
+      <div class="loader-bar"><i id="loader-fill"></i></div>
+      <div class="loader-text" id="loader-text">Расставляем костяшки…</div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
