@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "deploy": "sh deploy.sh",
     "models": "\"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe\" -b --factory-startup -P blender/build_puzzle.py -- public/models/puzzle.glb",
     "icons": "\"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe\" -b --factory-startup -P blender/render_icon.py -- public/models/puzzle.glb blender/icon_render.png 1024 160 && python blender/make_icons.py blender/icon_render.png public/icons"
   },
